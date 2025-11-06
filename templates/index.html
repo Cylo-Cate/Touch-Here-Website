@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="index.css">
+  <title>Touch here</title>
+  <style>
+
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <h1>Touch Here</h1>
+      <nav class="menu">
+        <a href="#">🏠 Início</a>
+        <a href="playlist.html">🎵 Minha Playlist</a>
+        <a href="#">⭐ Favoritos</a>
+        <a href="#">🧑 Perfil</a>
+      </nav>
+    </div>
+    <footer>© 2025 Touchhere</footer>
+  </aside>
+
+  <div class="main">
+    <header>
+      <div class="search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg>
+        <input type="text" placeholder="Buscar artistas, músicas...">
+      </div>
+      <div class="user">
+        <img src="https://i.pravatar.cc/100?img=5" alt="Usuário">
+        <span>Gabriel</span>
+      </div>
+    </header>
+
+    <section class="content" id="playlists">
+    </section>
+
+    <footer class="player">
+      <div><strong>🎧 Nenhuma música tocando</strong></div>
+      <div class="controls">
+        <button>⏮</button>
+        <button>⏯</button>
+        <button>⏭</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const playlists = [
+      { titulo: "Pop Hits", descricao: "Os maiores sucessos do pop atual", capa: "https://i.scdn.co/image/ab67706f000000036d4caa5db34a6ebde76f9df0" },
+      { titulo: "Relax & Chill", descricao: "Músicas suaves para relaxar", capa: "https://i.scdn.co/image/ab67706f00000003109e9a5b09d44ef246c4f3be" },
+      { titulo: "Rock Classics", descricao: "Os maiores clássicos do rock", capa: "https://i.scdn.co/image/ab67706f00000003713cdbfa783ec23e7ad9e8d4" },
+      { titulo: "Foco Total", descricao: "Sons para manter a concentração", capa: "https://i.scdn.co/image/ab67706f00000003a2a237eb5d85f79988db493c" },
+      { titulo: "Brasil Hits", descricao: "O melhor da música brasileira", capa: "https://i.scdn.co/image/ab67706f00000003ee4ad54581a69c6ff87576f3" },
+    ];
+
+    const container = document.getElementById('playlists');
+    playlists.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img src="${p.capa}" alt="${p.titulo}">
+        <h3>${p.titulo}</h3>
+        <p>${p.descricao}</p>
+      `;
+      div.onclick = () => alert(`Abrindo playlist: ${p.titulo}`);
+      container.appendChild(div);
+    });
+  </script>
+</body>
+</html>

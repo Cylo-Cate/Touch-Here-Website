@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="auth.css">
+  <title>Entrar — Touch here</title>
+</head>
+<body>
+  <div class="container" id="loginContainer">
+    <h1>Touch Here 🎧</h1>
+    <p class="subtitle">Entre e curta suas músicas preferidas</p>
+
+    <form id="loginForm">
+      <label for="emailLogin">E-mail</label>
+      <input type="email" id="emailLogin" placeholder="seu@exemplo.com" required>
+
+      <label for="senhaLogin">Senha</label>
+      <input type="password" id="senhaLogin" placeholder="••••••••" required>
+
+      <div class="options">
+        <a href="#" id="forgotLink">Esqueci minha senha</a>
+      </div>
+
+      <button class="btn btn-primary" type="submit">Entrar</button>
+
+      <div class="divider">ou</div>
+
+      <button class="btn btn-google" type="button" onclick="loginGoogle()">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+        Entrar com o Google
+      </button>
+
+      <div class="switch-mode">
+        Não tem uma conta? <a href="#" id="goRegister">Crie agora</a>
+      </div>
+    </form>
+
+    <!-- Cadastro -->
+    <form id="registerForm" class="hidden">
+      <label for="nomeCadastro">Nome completo</label>
+      <input type="text" id="nomeCadastro" placeholder="Seu nome" required>
+
+      <label for="emailCadastro">E-mail</label>
+      <input type="email" id="emailCadastro" placeholder="seu@exemplo.com" required>
+
+      <label for="senhaCadastro">Senha</label>
+      <input type="password" id="senhaCadastro" placeholder="Crie uma senha" required minlength="4">
+
+      <label for="fotoCadastro">Foto de perfil (URL)</label>
+      <input type="url" id="fotoCadastro" placeholder="https://exemplo.com/foto.jpg">
+
+      <button class="btn btn-primary" type="submit">Criar Conta</button>
+
+      <div class="switch-mode">
+        Já tem conta? <a href="#" id="goLogin">Entrar</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const goRegister = document.getElementById('goRegister');
+    const goLogin = document.getElementById('goLogin');
+    const forgotLink = document.getElementById('forgotLink');
+
+    goRegister.onclick = () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+    };
+
+    goLogin.onclick = () => {
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    };
+
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('emailLogin').value.trim();
+      const senha = document.getElementById('senhaLogin').value.trim();
+      const userData = JSON.parse(localStorage.getItem('usuarioAtivo'));
+
+      if (!userData || userData.email !== email || userData.senha !== senha) {
+        alert('E-mail ou senha incorretos!');
+        return;
+      }
+
+      alert('Login bem-sucedido!');
+      window.location.href = 'home.html';
+    });
+
+    registerForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const nome = document.getElementById('nomeCadastro').value.trim();
+      const email = document.getElementById('emailCadastro').value.trim();
+      const senha = document.getElementById('senhaCadastro').value.trim();
+      const foto = document.getElementById('fotoCadastro').value.trim() || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg';
+
+      const usuario = { nome, email, senha, foto };
+      localStorage.setItem('usuarioAtivo', JSON.stringify(usuario));
+      alert('Conta criada com sucesso!');
+      window.location.href = 'home.html';
+    });
+
+    forgotLink.onclick = () => {
+      const email = prompt('Digite o e-mail da sua conta:');
+      const user = JSON.parse(localStorage.getItem('usuarioAtivo'));
+      if (user && user.email === email) {
+        alert('Um e-mail de recuperação foi enviado (simulação).');
+      } else {
+        alert('E-mail não encontrado.');
+      }
+    };
+
+    function loginGoogle() {
+      alert('Login com Google simulado com sucesso!');
+      const usuario = {
+        nome: "Usuário Google",
+        email: "googleuser@example.com",
+        foto: "https://www.svgrepo.com/show/452213/google.svg",
+        senha: ""
+      };
+      localStorage.setItem('usuarioAtivo', JSON.stringify(usuario));
+      window.location.href = 'home.html';
+    }
+  </script>
+</body>
+</html>

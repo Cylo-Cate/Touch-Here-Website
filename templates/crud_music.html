@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="crud_music.css">
+  <title>Minha Playlist 🎧</title>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card">
+      <h1>🎵 Minha Playlist</h1>
+      <form id="playlistForm">
+        <div>
+          <label for="titulo">Título da Música</label>
+          <input id="titulo" type="text" placeholder="Ex: Perfect" required>
+        </div>
+        <div>
+          <label for="artista">Artista</label>
+          <input id="artista" type="text" placeholder="Ex: Ed Sheeran" required>
+        </div>
+        <div>
+          <label for="genero">Gênero</label>
+          <input id="genero" type="text" placeholder="Pop, Rock, Sertanejo..." required>
+        </div>
+        <div>
+          <label for="ano">Ano de Lançamento</label>
+          <input id="ano" type="number" min="1900" max="2100" placeholder="2020" required>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-add" onclick="adicionarMusica()">Adicionar à Playlist</button>
+          <button type="button" class="btn btn-show" onclick="mostrarPlaylist()">Ver Playlist</button>
+          <button type="button" class="btn btn-edit" onclick="editarMusica()">Editar Música</button>
+          <button type="button" class="btn btn-remove" onclick="removerMusica()">Remover da Playlist</button>
+        </div>
+        <button type="button" class="btn btn-back" onclick="location.href='pagina-login.html'">Voltar</button>
+      </form>
+
+      <table id="tabelaPlaylist">
+        <thead>
+          <tr>
+            <th>Título</th><th>Artista</th><th>Gênero</th><th>Ano</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+  </div>
+
+  <script>
+    function getPlaylist() {
+      return JSON.parse(localStorage.getItem('playlist')) || [];
+    }
+
+    function salvarPlaylist(lista) {
+      localStorage.setItem('playlist', JSON.stringify(lista));
+    }
+
+    function adicionarMusica() {
+      const titulo = document.getElementById('titulo').value.trim();
+      const artista = document.getElementById('artista').value.trim();
+      const genero = document.getElementById('genero').value.trim();
+      const ano = document.getElementById('ano').value.trim();
+
+      if (!titulo || !artista || !genero || !ano) {
+        alert('Preencha todos os campos!');
+        return;
+      }
+
+      const playlist = getPlaylist();
+      if (playlist.some(m => m.titulo === titulo)) {
+        alert('Essa música já está na playlist!');
+        return;
+      }
+
+      playlist.push({ titulo, artista, genero, ano });
+      salvarPlaylist(playlist);
+      alert('🎶 Música adicionada à playlist!');
+      mostrarPlaylist();
+    }
+
+    function mostrarPlaylist() {
+      const tbody = document.querySelector('#tabelaPlaylist tbody');
+      tbody.innerHTML = '';
+      const playlist = getPlaylist();
+
+      if (playlist.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999">Nenhuma música na playlist</td></tr>';
+        return;
+      }
+
+      playlist.forEach(m => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${m.titulo}</td><td>${m.artista}</td><td>${m.genero}</td><td>${m.ano}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function editarMusica() {
+      const titulo = prompt('Digite o título da música que deseja editar:');
+      if (!titulo) return;
+
+      const playlist = getPlaylist();
+      const musica = playlist.find(m => m.titulo === titulo);
+      if (!musica) {
+        alert('Música não encontrada na playlist.');
+        return;
+      }
+
+      const novoArtista = prompt('Novo artista:', musica.artista);
+      const novoGenero = prompt('Novo gênero:', musica.genero);
+      const novoAno = prompt('Novo ano:', musica.ano);
+
+      musica.artista = novoArtista || musica.artista;
+      musica.genero = novoGenero || musica.genero;
+      musica.ano = novoAno || musica.ano;
+
+      salvarPlaylist(playlist);
+      alert('✅ Música atualizada com sucesso!');
+      mostrarPlaylist();
+    }
+
+    function removerMusica() {
+      const titulo = prompt('Digite o título da música que deseja remover:');
+      if (!titulo) return;
+
+      let playlist = getPlaylist();
+      const antes = playlist.length;
+      playlist = playlist.filter(m => m.titulo !== titulo);
+      if (playlist.length === antes) {
+        alert('Música não encontrada.');
+        return;
+      }
+
+      salvarPlaylist(playlist);
+      alert('🗑️ Música removida da playlist.');
+      mostrarPlaylist();
+    }
+
+    window.onload = mostrarPlaylist;
+  </script>
+</body>
+</html>
