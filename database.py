@@ -1,12 +1,11 @@
-from flask import Flask, jsonify
-from flask_cors import CORS
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-import os
 from dotenv import load_dotenv
+import os
+from db_models import DB
 
 load_dotenv()
-DATABASE_URL = os.getenv
 
-app = Flask(__name__)
-app = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_engine(DATABASE_URL)
+DB.metadata.create_all(engine)

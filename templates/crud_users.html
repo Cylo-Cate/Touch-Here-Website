@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="crud_users.css">
+  <title>Gerenciar Usuários 👤</title>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card">
+      <h1>👥 Gerenciar Usuários</h1>
+      <form id="userForm">
+        <div>
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" placeholder="Nome do usuário" required>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="exemplo@email.com" required>
+        </div>
+        <div>
+          <label for="senha">Senha</label>
+          <input id="senha" type="password" placeholder="********" required>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-create" onclick="criarUsuario()">Cadastrar</button>
+          <button type="button" class="btn btn-read" onclick="abrirModal()">Consultar</button>
+          <button type="button" class="btn btn-update" onclick="alterarUsuario()">Alterar</button>
+          <button type="button" class="btn btn-delete" onclick="deletarUsuario()">Deletar</button>
+        </div>
+        <button type="button" class="btn btn-back" onclick="location.href='pagina-login.html'">Voltar</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modalUsuarios">
+    <div class="modal-content">
+      <button class="close" onclick="fecharModal()">Fechar</button>
+      <h2>Usuários Cadastrados</h2>
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>Email</th></tr>
+        </thead>
+        <tbody id="listaUsuarios"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const emailInput = document.getElementById('email');
+
+    // Bloquear acentos e espaços no e-mail
+    emailInput.addEventListener('input', function() {
+      this.value = this.value.normalize("NFD").replace(/[\u0300-\u036f\s]/g, '');
+    });
+
+    function getUsuarios() {
+      return JSON.parse(localStorage.getItem('usuarios')) || [];
+    }
+
+    function salvarUsuarios(lista) {
+      localStorage.setItem('usuarios', JSON.stringify(lista));
+    }
+
+    function criarUsuario() {
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value.trim();
+
+      if (!nome || !email || !senha) {
+        alert('Preencha todos os campos!');
+        return;
+      }
+
+      const usuarios = getUsuarios();
+      if (usuarios.some(u => u.email === email)) {
+        alert('Já existe um usuário com esse e-mail.');
+        return;
+      }
+
+      usuarios.push({ nome, email, senha });
+      salvarUsuarios(usuarios);
+      alert('Usuário cadastrado com sucesso!');
+    }
+
+    function abrirModal() {
+      const usuarios = getUsuarios();
+      const lista = document.getElementById('listaUsuarios');
+      lista.innerHTML = '';
+
+      if (usuarios.length === 0) {
+        lista.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#999">Nenhum usuário cadastrado</td></tr>';
+      } else {
+        usuarios.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${u.nome}</td><td>${u.email}</td>`;
+          lista.appendChild(tr);
+        });
+      }
+
+      document.getElementById('modalUsuarios').style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modalUsuarios').style.display = 'none';
+    }
+
+    function alterarUsuario() {
+      const email = prompt('Digite o e-mail do usuário que deseja alterar:');
+      if (!email) return;
+
+      const usuarios = getUsuarios();
+      const usuario = usuarios.find(u => u.email === email);
+      if (!usuario) {
+        alert('Usuário não encontrado.');
+        return;
+      }
+
+      const novoNome = prompt('Novo nome:', usuario.nome);
+      const novoEmail = prompt('Novo e-mail:', usuario.email);
+      const novaSenha = prompt('Nova senha:', usuario.senha);
+
+      if (!novoEmail) {
+        alert('O e-mail não pode ficar em branco!');
+        return;
+      }
+
+      const emailJaExiste = usuarios.some(u => u.email === novoEmail && u.email !== email);
+      if (emailJaExiste) {
+        alert('Já existe outro usuário com esse e-mail!');
+        return;
+      }
+
+      usuario.nome = novoNome || usuario.nome;
+      usuario.email = novoEmail.normalize("NFD").replace(/[\u0300-\u036f\s]/g, '');
+      usuario.senha = novaSenha || usuario.senha;
+
+      salvarUsuarios(usuarios);
+      alert('Usuário atualizado com sucesso!');
+    }
+
+    function deletarUsuario() {
+      const email = prompt('Digite o e-mail do usuário que deseja deletar:');
+      if (!email) return;
+
+      let usuarios = getUsuarios();
+      const antes = usuarios.length;
+      usuarios = usuarios.filter(u => u.email !== email);
+
+      if (usuarios.length === antes) {
+        alert('Usuário não encontrado.');
+        return;
+      }
+
+      salvarUsuarios(usuarios);
+      alert('Usuário deletado com sucesso!');
+    }
+  </script>
+</body>
+</html>
