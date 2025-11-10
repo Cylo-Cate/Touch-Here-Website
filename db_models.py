@@ -3,7 +3,6 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 DB = declarative_base()
 
-# Tabela de associação Playlist <-> Músicas
 playlist_musicas = Table(
     'playlist_musicas', DB.metadata,
     Column('playlist_id', Integer, ForeignKey('Playlists.id')),
@@ -36,10 +35,9 @@ class Generos(DB):
     id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(255), unique=True, nullable=False)
     descricao = Column(String(255), nullable=False)
-    origem = Column(String(255), nullable=False)  # <-- NOVO DADO AQUI
+    origem = Column(String(255), nullable=False)  
 
     musicas = relationship("Musicas", back_populates="genero")
-
 
 class Albuns(DB):
     __tablename__ = 'Albuns'
@@ -78,19 +76,12 @@ class Playlists(DB):
     musicas = relationship("Musicas", secondary=playlist_musicas, back_populates="playlists")
 
 
-# =======================================================================
-# CRIAÇÃO DO BANCO + INSERÇÃO DE DADOS
-# =======================================================================
 
 engine = create_engine("sqlite:///streaming.db")
 DB.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 session = Session()
-
-# =======================================================================
-# SEED: GÊNEROS (agora com 3 dados por registro)
-# =======================================================================
 
 generos = [
     Generos(nome="Hip-Hop", descricao="Ritmos marcantes e rimas", origem="Estados Unidos"),
@@ -99,10 +90,6 @@ generos = [
 ]
 session.add_all(generos)
 session.commit()
-
-# =======================================================================
-# SEED: ARTISTAS (5 artistas)
-# =======================================================================
 
 artistas = [
     Artistas(nome="Travis Scott", nacionalidade="Estados Unidos", ano_estreia=2013),
@@ -119,10 +106,6 @@ g_trap = generos[1]
 g_pop = generos[2]
 
 a1, a2, a3, a4, a5 = artistas
-
-# =======================================================================
-# ÁLBUNS (2 por artista * 5 artistas = 10 álbuns)
-# =======================================================================
 
 albuns = [
     Albuns(titulo="Rodeo", ano_lancamento=2015, artista_id=a1.id),
@@ -142,10 +125,6 @@ albuns = [
 ]
 session.add_all(albuns)
 session.commit()
-
-# =======================================================================
-# MÚSICAS (15 total - já estavam corretas)
-# =======================================================================
 
 musicas = [
     Musicas(titulo="90210", duracao="4:38", artista_id=a1.id, genero_id=g_trap.id, album_id=albuns[0].id),
