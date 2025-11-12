@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="auth.css">
-  <title>Entrar — Touch here</title>
+  <title>Entrar — Touch Here</title>
 </head>
 <body>
-  <div class="container" id="loginContainer">
+  <div class="container">
     <h1>Touch Here 🎧</h1>
     <p class="subtitle">Entre e curta suas músicas preferidas</p>
 
@@ -32,48 +32,14 @@
       </button>
 
       <div class="switch-mode">
-        Não tem uma conta? <a href="#" id="goRegister">Crie agora</a>
-      </div>
-    </form>
-
-    <!-- Cadastro -->
-    <form id="registerForm" class="hidden">
-      <label for="nomeCadastro">Nome completo</label>
-      <input type="text" id="nomeCadastro" placeholder="Seu nome" required>
-
-      <label for="emailCadastro">E-mail</label>
-      <input type="email" id="emailCadastro" placeholder="seu@exemplo.com" required>
-
-      <label for="senhaCadastro">Senha</label>
-      <input type="password" id="senhaCadastro" placeholder="Crie uma senha" required minlength="4">
-
-      <label for="fotoCadastro">Foto de perfil (URL)</label>
-      <input type="url" id="fotoCadastro" placeholder="https://exemplo.com/foto.jpg">
-
-      <button class="btn btn-primary" type="submit">Criar Conta</button>
-
-      <div class="switch-mode">
-        Já tem conta? <a href="#" id="goLogin">Entrar</a>
+        Não tem uma conta? <a href="register.html">Crie agora</a>
       </div>
     </form>
   </div>
 
   <script>
     const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const goRegister = document.getElementById('goRegister');
-    const goLogin = document.getElementById('goLogin');
     const forgotLink = document.getElementById('forgotLink');
-
-    goRegister.onclick = () => {
-      loginForm.classList.add('hidden');
-      registerForm.classList.remove('hidden');
-    };
-
-    goLogin.onclick = () => {
-      registerForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-    };
 
     loginForm.addEventListener('submit', e => {
       e.preventDefault();
@@ -87,19 +53,6 @@
       }
 
       alert('Login bem-sucedido!');
-      window.location.href = 'home.html';
-    });
-
-    registerForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const nome = document.getElementById('nomeCadastro').value.trim();
-      const email = document.getElementById('emailCadastro').value.trim();
-      const senha = document.getElementById('senhaCadastro').value.trim();
-      const foto = document.getElementById('fotoCadastro').value.trim() || 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg';
-
-      const usuario = { nome, email, senha, foto };
-      localStorage.setItem('usuarioAtivo', JSON.stringify(usuario));
-      alert('Conta criada com sucesso!');
       window.location.href = 'home.html';
     });
 

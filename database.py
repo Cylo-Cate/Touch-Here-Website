@@ -1,11 +1,8 @@
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
-from db_models import DB
+from flask_sqlalchemy import SQLAlchemy
 
-load_dotenv()
+db = SQLAlchemy()#Instancia o SQL_Alchemy
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-engine = create_engine(DATABASE_URL)
-DB.metadata.create_all(engine)
+def init_db(app):
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()#Cria as Tabelas

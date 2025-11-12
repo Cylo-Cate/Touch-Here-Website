@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="auth.css">
+  <title>Criar Conta — Touch Here</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Touch Here 🎧</h1>
+    <p class="subtitle">Crie sua conta e comece a ouvir</p>
+
+    <form id="registerForm">
+      <label for="nomeCadastro">Nome completo</label>
+      <input type="text" id="nomeCadastro" placeholder="Seu nome" required>
+
+      <label for="emailCadastro">E-mail</label>
+      <input type="email" id="emailCadastro" placeholder="seu@exemplo.com" required>
+
+      <label for="senhaCadastro">Senha</label>
+      <input type="password" id="senhaCadastro" placeholder="Crie uma senha" required minlength="4">
+
+      <label for="fotoCadastro">Foto de perfil (URL)</label>
+      <input type="url" id="fotoCadastro" placeholder="https://exemplo.com/foto.jpg">
+
+      <button class="btn btn-primary" type="submit">Criar Conta</button>
+
+      <div class="switch-mode">
+        Já tem conta? <a href="login.html">Entrar</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const registerForm = document.getElementById('registerForm');
+
+    registerForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const nome = document.getElementById('nomeCadastro').value.trim();
+      const email = document.getElementById('emailCadastro').value.trim();
+      const senha = document.getElementById('senhaCadastro').value.trim();
+      const foto = document.getElementById('fotoCadastro').value.trim() || 
+                   'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg';
+
+      const usuario = { nome, email, senha, foto };
+      localStorage.setItem('usuarioAtivo', JSON.stringify(usuario));
+      alert('Conta criada com sucesso!');
+      window.location.href = 'home.html';
+    });
+  </script>
+</body>
+</html>
