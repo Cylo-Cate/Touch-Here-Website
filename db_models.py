@@ -1,6 +1,8 @@
-from database import db
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
+db = SQLAlchemy()#Instancia o SQL_Alchemy
 
 class Usuarios(UserMixin, db.Model):
     __tablename__ = "usuarios"
@@ -9,7 +11,7 @@ class Usuarios(UserMixin, db.Model):
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
-    tipo_usuario = db.Column(db.String(8), nullable=False)
+    tipo_usuario = db.Column(db.String(8), nullable=False, default='usuario')
     payment_plan = db.Column(db.String(255, nullable=False))
 
      # Relacionamentos
@@ -105,4 +107,3 @@ class PlaylistMusicas(db.Model):
     
     def __repr__(self):
         return f'<PlaylistMusicas {self.playlist_id}-{self.musica_id}>'
-

@@ -1,18 +1,19 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import declarative_base
 import os 
 from flask import Flask, render_template , request, url_for, redirect , flash
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
-from db_models import DB, Usuarios,Musicas
+from db_models import db , Usuarios, Musicas, Artistas, Genero, Albuns, Playlist, PlaylistMusicas
 from functools import wraps
+
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 #Config Inicial
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+db.init_app(app)
 
 #Extensões[Login]
 login_manager = LoginManager()
@@ -28,11 +29,8 @@ def load_user(user_id):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash("Você precisa estar logado para acessar esta página", 'danger')
-            return redirect(url_for('login'))
         if current_user.tipo_usuario != 'admin':
-            flash("Acesso negado. Esta área é restrita para administradores", 'danger')
+            flash("Acesso Negado, Somente Admins!!", 'danger')
             return redirect(url_for('index'))
         return f(*args, **kwargs)
     return decorated_function
@@ -71,8 +69,8 @@ def register():
         
         hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
         new_account = Usuarios(nome=nickname, email=email, senha=hashed_pw, tipo_usuario='usuario')
-        session.add(new_account)
-        session.commit()
+        db.session.add(new_account)
+        db.session.commit()
         flash('Conta Criada com Sucesso', 'success')
         return render_template('login.html')
     return render_template('register.html')
@@ -107,3 +105,19 @@ def profile():
         return render_template("profile.html", usuario=current_user)
     else:
         flash("Você Precisa entrar para Acessar essa Pagina", 'danger')
+
+@app.route("/admin")
+@login_required
+@admin_required
+def admin():
+    return render_template("admin_home.html")
+@app.route("/admin/musicas")
+@login_required
+@admin_required
+def crud_musicas():
+    return render_template("crud_music.html")
+
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
