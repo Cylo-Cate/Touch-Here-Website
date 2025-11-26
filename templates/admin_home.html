@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  <title>Admin — Touch Here</title>
+  <style>
+    .admin-header {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #282828;
+      background: #181818;
+    }
+
+    .admin-container {
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: #242424;
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-card h3 { font-size: 20px; color: var(--accent); }
+    .stat-card p { color: var(--muted); font-weight: 600; }
+
+    .admin-actions {
+      background: #1f1f1f;
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      color: #000;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #333;
+      font-weight: 700;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .admin-container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR (reaproveitando markup do index.html) -->
+  <aside class="sidebar">
+    <div>
+      <h1>Touch Here</h1>
+
+      <nav class="menu">
+        <a href="{{ url_for('index') }}">🏠 Início</a>
+
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('playlist') }}">🎵 Minhas Playlists</a>
+            <a href="{{ url_for('liked') }}">⭐ Favoritos</a>
+
+            {% if current_user.is_admin %}
+                <a href="{{ url_for('admin') }}">⚙️ Admin</a>
+            {% endif %}
+
+        {% else %}
+            <a href="{{ url_for('login') }}">🎧 Faça login</a>
+        {% endif %}
+      </nav>
+    </div>
+
+    <footer>© 2025 Touchhere</footer>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="admin-header">
+      <div>
+        <h2 style="margin:0;">⚙️ Painel de Administração</h2>
+        <p class="small-note" style="margin-top:6px;">Visão geral do sistema</p>
+      </div>
+
+      <div class="user">
+        {% if current_user.is_authenticated %}
+          <div class="user-info" onclick="window.location.href='{{ url_for('profile') }}'">
+            <img
+              src="{{ current_user.foto_perfil if current_user.foto_perfil else 'https://i.pravatar.cc/150' }}"
+              alt="Foto de perfil"
+              class="profile-photo"
+            >
+            <span>{{ current_user.nome }}</span>
+          </div>
+
+          <button class="login-btn" onclick="window.location.href='{{ url_for('logout') }}'">
+            Sair
+          </button>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="admin-container">
+      <!-- LEFT: overview de estatísticas e atalhos -->
+      <div>
+        <section style="margin-bottom:18px;">
+          <h3 style="margin-bottom:10px;">Resumo rápido</h3>
+
+          <div class="overview">
+            <div class="stat-card">
+              <h3>{{ total_usuarios or 0 }}</h3>
+              <p>Usuários</p>
+            </div>
+
+            <div class="stat-card">
+              <h3>{{ total_musicas or 0 }}</h3>
+              <p>Músicas</p>
+            </div>
+
+            <div class="stat-card">
+              <h3>{{ total_artistas or 0 }}</h3>
+              <p>Artistas</p>
+            </div>
+
+            <div class="stat-card">
+              <h3>{{ total_albuns or 0 }}</h3>
+              <p>Álbuns</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 style="margin-bottom:10px;">Ações rápidas</h3>
+          <div class="grid" style="display:flex; gap:12px; flex-wrap:wrap;">
+            <!-- Botões grandes que redirecionam para os CRUDs -->
+            <a class="btn" href="/admin/musicas" title="Gerenciar músicas">🎵 Gerenciar Músicas</a>
+
+            <!-- Usamos o caminho direto /admin/artistas (altere conforme sua rota real) -->
+            <a class="btn secondary" href="/admin/usuarios" title="Gerenciar Usuarios">👤 Gerenciar Usuarios</a>
+
+            <!-- Se quiser mais atalhos, copie o padrão acima -->
+          </div>
+        </section>
+      </div>
+
+      <!-- RIGHT: painel de ajuda / ações administrativas -->
+      <aside class="admin-actions">
+        <h4 style="margin:0 0 6px 0;">Dicas</h4>
+        <p class="small-note">Use os botões para acessar os CRU D de cada entidade. Se algum link retornar 404, verifique se a rota correspondente existe no `app.py`
+          <br><br>URLs Aceitas para Baixar as Musicas: Youtube(Original) / Instagram / TikTok / SoundCloud(Publicos) / Twitch / Vimeo(Publicos) e muitos outros</p>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <a class="btn" href="{{ url_for('index') }}">Voltar ao site</a>
+        </div>
+
+        <div style="margin-top:10px; font-size:13px; color:var(--muted);">
+          <strong>Última atualização:</strong>
+          <div>{{ current_user.nome if current_user.is_authenticated else '—' }}</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+</body>
+</html>

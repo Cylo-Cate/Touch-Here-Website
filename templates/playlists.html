@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='playlist.css') }}">
+    <title>Minhas Playlists</title>
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div>
+            <h1>Touch Here</h1>
+            <nav class="menu">
+                <a href="{{ url_for('index') }}">🏠 Início</a>
+                <a href="{{ url_for('playlist') }}">🎵 Minhas Playlists</a>
+                <a href="{{ url_for('liked') }}">⭐ Favoritos</a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin') }}">⚙️ Admin</a>
+                {% endif %}
+            </nav>
+        </div>
+        <footer>© 2025 Touchhere</footer>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- HEADER -->
+        <header>
+            <div class="search">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+                </svg>
+                <input type="text" placeholder="Buscar playlists...">
+            </div>
+
+            <div class="user">
+                <div class="user-info" onclick="window.location.href='{{ url_for('profile') }}'">
+                    <img src="{{ current_user.foto_perfil or 'https://i.pravatar.cc/150' }}" class="profile-photo">
+                    <span>{{ current_user.nome }}</span>
+                </div>
+                <button class="login-btn" onclick="window.location.href='{{ url_for('logout') }}'">Sair</button>
+            </div>
+        </header>
+
+        <!-- FLASHES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- LISTA DE PLAYLISTS -->
+        <section class="content">
+
+            <!-- BOTÃO DE NOVA PLAYLIST -->
+            <div class="card" onclick="abrirCriarPlaylist()">
+                <h3>+ Nova Playlist</h3>
+            </div>
+
+            {% for p in playlists %}
+                <div class="card" onclick="window.location.href='{{ url_for('ver_playlist', playlist_id=p.id) }}'">
+                    <h3>{{ p.nome }}</h3>
+                    <p>{{ p.descricao or 'Sem descrição' }}</p>
+                </div>
+            {% else %}
+                <p>Nenhuma playlist criada.</p>
+            {% endfor %}
+        </section>
+
+    </div>
+
+    <!-- ====== MODAIS ====== -->
+    <div id="modalCriar" class="modal">
+        <div class="modal-content">
+            <h3>Criar Playlist</h3>
+            <form method="POST" action="{{ url_for('criar_playlist') }}">
+                <label>Nome:</label>
+                <input type="text" name="nome" required>
+                <label>Descrição:</label>
+                <textarea name="descricao"></textarea>
+                <button type="submit">Criar</button>
+                <button type="button" class="cancel" onclick="fecharModais()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirCriarPlaylist() {
+            document.getElementById("modalCriar").style.display = "flex";
+        }
+
+        function fecharModais() {
+            document.getElementById("modalCriar").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>

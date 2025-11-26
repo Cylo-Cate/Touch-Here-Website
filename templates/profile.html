@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações — Touch Here</title>
+
+  <style>
+    :root {
+      --spotify-green: #c721ba;
+      --spotify-black: #121212;
+      --spotify-dark: #181818;
+      --spotify-gray: #eda7de;
+      --radius: 10px;
+    }
+
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--spotify-black);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    header {
+      background-color: var(--spotify-dark);
+      padding: 15px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #333;
+      position: relative;
+    }
+
+    header h1 {
+      color: var(--spotify-green);
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .user-menu img {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background-color: var(--spotify-dark);
+      border-radius: var(--radius);
+      width: 180px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    .dropdown.active {
+      display: block;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 15px;
+      font-size: 14px;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.2s;
+    }
+
+    .dropdown a:hover {
+      background-color: #282828;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .settings-container {
+      background: var(--spotify-dark);
+      width: 90%;
+      max-width: 800px;
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      color: var(--spotify-green);
+      margin-bottom: 10px;
+      font-size: 18px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 5px;
+    }
+
+    section { margin-bottom: 30px; }
+
+    label {
+      display: block;
+      font-size: 14px;
+      color: var(--spotify-gray);
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background-color: #282828;
+      color: #fff;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .profile-pic-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    .profile-pic-container img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--spotify-green);
+      object-fit: cover;
+    }
+
+    .upload-btn {
+      background: transparent;
+      border: 1px solid var(--spotify-green);
+      color: var(--spotify-green);
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button.save {
+      background: var(--spotify-green);
+      border: none;
+      padding: 12px 20px;
+      font-weight: 600;
+      color: #000;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      border-top: 1px solid #333;
+      color: var(--spotify-gray);
+    }
+
+    .logo-btn {
+  color: var(--spotify-green);
+  font-size: 22px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 1px solid var(--spotify-green);
+  border-radius: 8px;
+  transition: 0.2s ease;
+}
+
+.logo-btn:hover {
+  background-color: var(--spotify-green);
+  color: #000;
+  cursor: pointer;
+}
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="{{ url_for('index') }}" class="logo-btn">Touch Here</a>
+
+
+    <div class="user-menu" onclick="toggleMenu()">
+      <img id="userImageHeader"
+        src="{{ usuario.foto_perfil if usuario.foto_perfil else 'https://i.pravatar.cc/150' }}">
+      <span id="userNameHeader">{{ usuario.nome }}</span>
+
+      <div class="dropdown" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Ver perfil</a>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div class="settings-container">
+
+      <section>
+        <h2>Conta</h2>
+
+        <div class="profile-pic-container">
+          <img id="userImage"
+            src="{{ usuario.foto_perfil if usuario.foto_perfil else 'https://i.pravatar.cc/150' }}">
+          
+          <div>
+            <input type="file" id="uploadFoto" accept="image/*" hidden>
+            <button class="upload-btn" onclick="document.getElementById('uploadFoto').click()">Mudar foto</button>
+          </div>
+        </div>
+
+        <label>Nome</label>
+        <input type="text" id="nome" value="{{ usuario.nome }}">
+
+        <label>Email</label>
+        <input type="email" id="email" value="{{ usuario.email }}">
+
+        <label>Senha</label>
+        <input type="password" id="senha" placeholder="Nova senha (opcional)">
+      </section>
+
+      <button class="save" onclick="salvarConfig()">Salvar Alterações</button>
+    </div>
+  </main>
+
+  <footer>© 2025 Touch Here</footer>
+
+  <!-- SCRIPT -->
+  <script>
+    function toggleMenu() {
+      document.getElementById("dropdownMenu").classList.toggle("active");
+    }
+
+    const uploadInput = document.getElementById("uploadFoto");
+    const userImage = document.getElementById("userImage");
+    const userImageHeader = document.getElementById("userImageHeader");
+    let fotoBase64 = "";
+
+    uploadInput.addEventListener("change", () => {
+      const file = uploadInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        fotoBase64 = e.target.result;
+        userImage.src = fotoBase64;
+        userImageHeader.src = fotoBase64;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function salvarConfig() {
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+
+      fetch("/profile/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          nome,
+          email,
+          senha,
+          foto_base64: fotoBase64
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "ok") {
+          alert("Perfil atualizado com sucesso!");
+          document.getElementById("userNameHeader").innerText = nome;
+        } else {
+          alert("Erro: " + data.message);
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

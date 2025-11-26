@@ -1,0 +1,121 @@
+:root {
+  --bg:#f4f7fb; --card:#ffffff; --accent:#0b84f6;
+  --muted:#6b7280; --danger:#ef4444; --success:#10b981; --warn:#f59e0b;
+}
+* { box-sizing:border-box }
+body {
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background:var(--bg);
+  color:#111;
+}
+.wrap {
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.card {
+  width:100%;
+  max-width:650px;
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:0 8px 30px rgba(17,24,39,0.08);
+  padding:28px;
+}
+h1 {
+  text-align:center;
+  margin-bottom:16px;
+}
+form {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:20px;
+}
+label {
+  font-size:13px;
+  color:var(--muted);
+}
+input {
+  padding:10px;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  font-size:14px;
+}
+.actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:10px;
+}
+.btn {
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:0;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-create { background:var(--accent); color:#fff }
+.btn-read { background:var(--success); color:#fff }
+.btn-update { background:var(--warn); color:#fff }
+.btn-delete { background:var(--danger); color:#fff }
+.btn-back {
+  background:transparent;
+  border:1px solid #d1d5db;
+  color:var(--muted);
+  width:100%;
+  margin-top:10px;
+}
+
+/* ======== Modal ======== */
+.modal {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.5);
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.modal-content {
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  width:90%;
+  max-width:500px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  animation:fadeIn .3s ease;
+}
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(-10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.modal h2 {
+  margin-top:0;
+  text-align:center;
+}
+.modal table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  font-size:14px;
+}
+th, td {
+  border:1px solid #e5e7eb;
+  padding:8px;
+  text-align:left;
+}
+th { background:#f3f4f6 }
+.close {
+  background:var(--danger);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:8px 14px;
+  cursor:pointer;
+  float:right;
+}

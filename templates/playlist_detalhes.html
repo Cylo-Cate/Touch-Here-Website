@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='playlist.css') }}">
+    <title>{{ playlist.nome }}</title>
+    <style>
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 260px;                 
+            width: calc(100% - 260px);   
+            height: 90px;
+            background: #111;
+            border-top: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            color: white;
+            z-index: 9999;
+        }
+
+        .player-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-img {
+            width: 65px;
+            height: 65px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .player-center button {
+            font-size: 25px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 0 8px;
+        }
+
+        .player-center button:hover {
+            opacity: .6;
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .playlist-header button {
+            margin-left: 10px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div>
+            <h1>Touch Here</h1>
+            <nav class="menu">
+                <a href="{{ url_for('index') }}">🏠 Início</a>
+                <a href="{{ url_for('playlist') }}">🎵 Minhas Playlists</a>
+                <a href="{{ url_for('liked') }}">⭐ Favoritos</a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin') }}">⚙️ Admin</a>
+                {% endif %}
+            </nav>
+        </div>
+        <footer>© 2025 Touchhere</footer>
+    </aside>
+
+    <div class="main">
+        <header>
+            <h2>{{ playlist.nome }}</h2>
+            <div class="user">
+                <div class="user-info" onclick="window.location.href='{{ url_for('profile') }}'">
+                    <img src="{{ current_user.foto_perfil or 'https://i.pravatar.cc/150' }}" class="profile-photo">
+                    <span>{{ current_user.nome }}</span>
+                </div>
+                <button class="login-btn" onclick="window.location.href='{{ url_for('logout') }}'">Sair</button>
+            </div>
+        </header>
+
+        <!-- FLASH -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div style="padding: 25px;">
+            <!-- HEADER DA PLAYLIST COM EDITAR/DELETAR -->
+            <div class="playlist-header">
+                <h3>{{ playlist.nome }}</h3>
+                <div>
+                    <button onclick="abrirEditarPlaylist('{{ playlist.id }}', '{{ playlist.nome }}', '{{ playlist.descricao or '' }}')">Editar</button>
+                    <form action="{{ url_for('deletar_playlist', playlist_id=playlist.id) }}" method="post" style="display:inline;">
+                        <button type="submit">Deletar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MÚSICAS DA PLAYLIST -->
+            <h4>🎧 Músicas</h4>
+            <div class="content" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                {% if musicas_playlist %}
+                    {% for m in musicas_playlist %}
+                    <div class="card" onclick="playMusic('{{ m.titulo }}', '{{ m.artista.nome }}', '{{ m.caminho_pasta }}')">
+                        <h5>{{ m.titulo }}</h5>
+                        <p>{{ m.artista.nome }}</p>
+                        <button 
+                            style="margin-top: 10px; padding: 6px; width: 100%;"
+                            onclick="event.stopPropagation(); window.location.href='{{ url_for('remover_musica', playlist_id=playlist.id, musica_id=m.id) }}'">
+                            Remover
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nenhuma música aqui.</p>
+                {% endif %}
+            </div>
+
+            <br><br>
+
+            <!-- TODAS AS MÚSICAS -->
+            <h4>➕ Adicionar músicas</h4>
+            <div class="content" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                {% for m in musicas %}
+                <div class="card">
+                    <h5>{{ m.titulo }}</h5>
+                    <p>{{ m.artista.nome }}</p>
+                    <button 
+                        style="margin-top: 10px; padding: 6px; width: 100%; background: #c721ba; border:none; cursor:pointer;"
+                        onclick="window.location.href='{{ url_for('playlist_musica', playlist_id=playlist.id, musica_id=m.id) }}'">
+                        Adicionar
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- MODAL EDITAR PLAYLIST -->
+        <div id="modalEditar" class="modal" style="display:none;">
+            <div class="modal-content">
+                <h3>Editar Playlist</h3>
+                <form id="formEditar" method="POST">
+                    <label>Nome:</label>
+                    <input type="text" id="editNome" name="nome" required>
+                    <label>Descrição:</label>
+                    <textarea id="editDesc" name="descricao"></textarea>
+                    <button type="submit">Salvar</button>
+                    <button type="button" class="cancel" onclick="fecharModais()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PLAYER -->
+        <footer class="player">
+            <div class="player-left">
+                <img id="player-cover" src="https://i.imgur.com/8QfY7gM.png" class="player-img">
+                <div>
+                    <h4 id="player-title">Nenhuma música tocando</h4>
+                    <p id="player-artist"></p>
+                </div>
+            </div>
+
+            <div class="player-center">
+                <button onclick="prevTrack()">⏮</button>
+                <button onclick="togglePlay()">⏯</button>
+                <button onclick="nextTrack()">⏭</button>
+                <audio id="audio-player" style="display:none;"></audio>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // MODAL EDITAR
+        function abrirEditarPlaylist(id, nome, desc) {
+            document.getElementById("modalEditar").style.display = "flex";
+            document.getElementById("editNome").value = nome;
+            document.getElementById("editDesc").value = desc;
+            document.getElementById("formEditar").action = `/playlist/editar/${id}`;
+        }
+        function fecharModais() {
+            document.getElementById("modalEditar").style.display = "none";
+        }
+
+        // PLAYER
+        const playlist = [];
+        let currentIndex = 0;
+        {% for m in musicas_playlist %}
+        playlist.push({
+            title: "{{ m.titulo }}",
+            artist: "{{ m.artista.nome }}",
+            path: "Touch-Here-Website/{{ m.caminho_pasta }}"
+        });
+        {% endfor %}
+
+        const audio = document.getElementById("audio-player");
+
+        function playMusic(title, artist, path) {
+            const audio = document.getElementById("audio-player");
+
+            path = path.replace("Touch-Here-Website/", ""); // Ajusta caminho
+            audio.src = "/" + path;
+            audio.play();
+
+            document.getElementById("player-title").innerText = title;
+            document.getElementById("player-artist").innerText = artist;
+            document.getElementById("player-cover").src = "https://i.imgur.com/8QfY7gM.png";
+
+            const track = { title, artist, path };
+            if (!playlist.find(t => t.path === path)) playlist.push(track);
+
+            currentIndex = playlist.findIndex(t => t.path === path);
+        }
+
+        function togglePlay() {
+            const audio = document.getElementById("audio-player");
+            audio.paused ? audio.play() : audio.pause();
+        }
+
+        function nextTrack() {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex + 1) % playlist.length;
+            const m = playlist[currentIndex];
+            playMusic(m.title, m.artist, m.path);
+        }
+
+        function prevTrack() {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            const m = playlist[currentIndex];
+            playMusic(m.title, m.artist, m.path);
+        }
+    </script>
+</body>
+</html>

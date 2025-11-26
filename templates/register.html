@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+
+  <title>Criar Conta — Touch Here</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Touch Here 🎧</h1>
+    <p class="subtitle">Crie sua conta e comece a ouvir</p>
+    
+    <form method="POST" action="{{ url_for('register') }}">
+      
+      <label for="nomeCadastro">Nome completo</label>
+      <input 
+        type="text" 
+        id="nomeCadastro" 
+        name="nickname"
+        placeholder="Seu nome" 
+        required
+      >
+
+      <label for="emailCadastro">E-mail</label>
+      <input 
+        type="email" 
+        id="emailCadastro" 
+        name="email"
+        placeholder="seu@exemplo.com" 
+        required
+      >
+
+      <label for="senhaCadastro">Senha</label>
+      <input 
+        type="password" 
+        id="senhaCadastro" 
+        name="password"
+        placeholder="Crie uma senha" 
+        required minlength="4"
+      >
+
+      <button class="btn btn-primary" type="submit">Criar Conta</button>
+
+      <div class="switch-mode">
+        Já tem conta? <a href="{{ url_for('login') }}">Entrar</a>
+      </div>
+    </form>
+
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <title>Favoritos</title>
+
+    <style>
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 260px;                 
+            width: calc(100% - 260px);  
+            height: 90px;
+            background: #111;
+            border-top: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            color: white;
+            z-index: 9999;
+        }
+
+
+        .player-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-img {
+            width: 65px;
+            height: 65px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .player-center button {
+            font-size: 25px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 0 8px;
+        }
+
+        .player-center button:hover {
+            opacity: .6;
+        }
+        
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div>
+            <h1>Touch Here</h1>
+            <nav class="menu">
+                <a href="{{ url_for('index') }}">🏠 Início</a>
+                <a href="{{ url_for('playlist') }}">🎵 Minhas Playlists</a>
+                <a href="{{ url_for('liked') }}">⭐ Favoritos</a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin') }}">⚙️ Admin</a>
+                {% endif %}
+            </nav>
+        </div>
+        <footer>© 2025 Touchhere</footer>
+    </aside>
+
+
+    <div class="main">
+        <header>
+            <div class="search">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+                </svg>
+                <input type="text" placeholder="Buscar músicas...">
+            </div>
+
+            <div class="user">
+                <div class="user-info" onclick="window.location.href='{{ url_for('profile') }}'">
+                    <img src="{{ current_user.foto_perfil or 'https://i.pravatar.cc/150' }}" class="profile-photo">
+                    <span>{{ current_user.nome }}</span>
+                </div>
+                <button class="login-btn" onclick="window.location.href='{{ url_for('logout') }}'">Sair</button>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <section class="content">
+            <h2>⭐ Músicas Curtidas</h2>
+            <div class="grid">
+                {% for musica in musicas %}
+                <div class="card">
+
+                    <h3>{{ musica.titulo }}</h3>
+                    <p><strong>Artista:</strong> {{ musica.artista.nome }}</p>
+                    <p><strong>Gênero:</strong> {{ musica.genero.tipo }}</p>
+                    {% if musica.album %}
+                    <p><strong>Álbum:</strong> {{ musica.album.titulo }}</p>
+                    {% endif %}
+
+
+                    <button onclick="playMusic(
+                        '{{ musica.titulo }}',
+                        '{{ musica.artista.nome }}',
+                        '{{ musica.caminho_pasta }}'
+                    )">▶️ Tocar</button>
+
+                    <form action="{{ url_for('remover_favorito', musica_id=musica.id) }}" method="post">
+                        <button type="submit">Remover</button>
+                    </form>
+                </div>
+                {% else %}
+                <p>Nenhuma música curtida.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="player">
+        <div class="player-left">
+            <img id="player-cover" src="https://i.imgur.com/8QfY7gM.png" class="player-img">
+            <div>
+                <h4 id="player-title">Nenhuma música tocando</h4>
+                <p id="player-artist"></p>
+            </div>
+        </div>
+
+        <div class="player-center">
+            <button onclick="prevTrack()">⏮</button>
+            <button onclick="togglePlay()">⏯</button>
+            <button onclick="nextTrack()">⏭</button>
+            <audio id="audio-player" style="display:none;"></audio>
+        </div>
+    </footer>
+
+    <script>
+        let playlist = [];
+        let currentIndex = 0;
+
+        function playMusic(title, artist, path) {
+            const audio = document.getElementById("audio-player");
+
+            path = path.replace("Touch-Here-Website/", "");
+            audio.src = "/" + path;
+            audio.play();
+
+            document.getElementById("player-title").innerText = title;
+            document.getElementById("player-artist").innerText = artist;
+            document.getElementById("player-cover").src = "https://i.imgur.com/8QfY7gM.png";
+
+            const track = { title, artist, path };
+
+            if (!playlist.find(t => t.path === path)) playlist.push(track);
+
+            currentIndex = playlist.findIndex(t => t.path === path);
+        }
+
+        function togglePlay() {
+            const audio = document.getElementById("audio-player");
+            audio.paused ? audio.play() : audio.pause();
+        }
+
+        function nextTrack() {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex + 1) % playlist.length;
+            const t = playlist[currentIndex];
+            playMusic(t.title, t.artist, t.path);
+        }
+
+        function prevTrack() {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            const t = playlist[currentIndex];
+            playMusic(t.title, t.artist, t.path);
+        }
+    </script>
+
+</body>
+</html>

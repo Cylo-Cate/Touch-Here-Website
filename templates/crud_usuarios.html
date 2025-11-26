@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD de Usuários</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cruds.css') }}">
+</head>
+<body>
+  <div class="sidebar">
+    <h1>Touch Here</h1>
+    <div class="menu">
+      <a href="{{ url_for('admin') }}">Dashboard</a>
+      <a href="{{ url_for('crud_musicas') }}">Músicas</a>
+      <a href="{{ url_for('crud_usuarios') }}">Usuários</a>
+      <a href="{{ url_for('index') }}">Home</a>
+    </div>
+    <footer>© 2025 TouchHere</footer>
+  </div>
+
+  <div class="main">
+    <header>
+      <div class="search">
+        <input type="text" placeholder="Pesquisar usuários...">
+      </div>
+      <div class="user">
+        {% if current_user.is_authenticated %}
+        <div class="user-info">
+          <img src="{{ current_user.foto_perfil or url_for('static', filename='default.png') }}" class="profile-photo">
+          <span>{{ current_user.nome }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Botão adicionar usuário -->
+      <div class="card" onclick="openAddModal()">
+        <h3>+ Adicionar Usuário</h3>
+      </div>
+
+      {% for usuario in usuarios %}
+      <div class="card">
+        <h3>{{ usuario.nome }}</h3>
+        <p>Email: {{ usuario.email }}</p>
+        <p>Tipo: {{ usuario.tipo_usuario }}</p>
+        <div style="margin-top:10px; display:flex; gap:5px;">
+          <form action="{{ url_for('deletar_usuario', usuario_id=usuario.id) }}" method="get">
+            <button type="submit" class="delete">Deletar</button>
+          </form>
+          <button type="button" class="edit" onclick="openEditModal({{ usuario.id }})">Editar</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Modal adicionar/editar usuário -->
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Adicionar Usuário</h3>
+      <form id="userForm" method="POST">
+        <input type="text" name="nome" placeholder="Nome" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="senha" placeholder="Senha">
+        <select name="tipo_usuario">
+          <option value="usuario">Usuário</option>
+          <option value="admin">Admin</option>
+        </select>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button type="submit" class="save">Salvar</button>
+          <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <script>
+    function openAddModal() {
+      document.getElementById('modalTitle').innerText = 'Adicionar Usuário';
+      document.getElementById('userForm').action = "{{ url_for('adicionar_usuario') }}";
+      document.getElementById('userModal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+      fetch("{{ url_for('get_usuario', usuario_id=0) }}".replace('0', id))
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('modalTitle').innerText = 'Editar Usuário';
+          const form = document.getElementById('userForm');
+          form.action = "/admin/usuarios/editar/" + id;
+          form.nome.value = data.nome;
+          form.email.value = data.email;
+          form.tipo_usuario.value = data.tipo_usuario;
+          document.getElementById('userModal').style.display = 'flex';
+        });
+    }
+
+    function closeModal() {
+      document.getElementById('userModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

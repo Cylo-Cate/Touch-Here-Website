@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD de Músicas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cruds.css') }}">
+</head>
+<body>
+  <div class="sidebar">
+    <h1>TouchHere</h1>
+    <div class="menu">
+      <a href="{{ url_for('admin') }}">Dashboard</a>
+      <a href="{{ url_for('crud_musicas') }}">Músicas</a>
+      <a href="{{ url_for('crud_usuarios') }}">Usuários</a>
+      <a href="{{ url_for('index') }}">Home</a>
+    </div>
+    <footer>© 2025 TouchHere</footer>
+  </div>
+
+  <div class="main">
+    <header>
+      <div class="search">
+        <input type="text" placeholder="Pesquisar músicas...">
+      </div>
+      <div class="user">
+        {% if current_user.is_authenticated %}
+        <div class="user-info">
+          <img src="{{ current_user.foto_perfil or url_for('static', filename='default.png') }}" class="profile-photo">
+          <span>{{ current_user.nome }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Botão de adicionar música -->
+      <div class="card" onclick="openAddModal()">
+        <h3>+ Adicionar Música</h3>
+      </div>
+
+      {% for musica in musicas %}
+      <div class="card">
+        <h3>{{ musica.titulo }}</h3>
+        <p>Artista: {{ musica.artista.nome }}</p>
+        <p>Gênero: {{ musica.genero.tipo }}</p>
+        {% if musica.album %}
+        <p>Álbum: {{ musica.album.titulo }}</p>
+        {% endif %}
+        <div style="margin-top:10px; display:flex; gap:5px;">
+          <form action="{{ url_for('deletar_musica', musica_id=musica.id) }}" method="get">
+            <button type="submit" class="delete">Deletar</button>
+          </form>
+          <button type="button" class="edit" onclick="openEditModal({{ musica.id }})">Editar</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Modal adicionar/editar música -->
+  <div id="musicModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Adicionar Música</h3>
+      <form id="musicForm" method="POST">
+        <input type="text" name="titulo" placeholder="Título" required>
+        <input type="text" name="artista" placeholder="Artista" required>
+        <input type="text" name="genero" placeholder="Gênero" required>
+        <input type="text" name="album" placeholder="Álbum (opcional)">
+        <input type="text" name="url" placeholder="Link da Musica">
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button type="submit" class="save">Salvar</button>
+          <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openAddModal() {
+      document.getElementById('modalTitle').innerText = 'Adicionar Música';
+      document.getElementById('musicForm').action = "{{ url_for('adicionar_musica') }}";
+      document.getElementById('musicForm').reset();
+      document.getElementById('musicModal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+      fetch("{{ url_for('get_musica', musica_id=0) }}".replace('0', id))
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('modalTitle').innerText = 'Editar Música';
+          const form = document.getElementById('musicForm');
+          form.action = "/admin/musicas/editar/" + id;
+          form.titulo.value = data.titulo;
+          form.artista.value = data.artista_nome || '';
+          form.genero.value = data.genero_tipo || '';
+          form.album.value = data.album_titulo || '';
+          document.getElementById('musicModal').style.display = 'flex';
+        });
+    }
+
+    function closeModal() {
+      document.getElementById('musicModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <title>Touch Here</title>
+
+    <style>
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 260px;                
+            width: calc(100% - 260px);  
+            height: 90px;
+            background: #111;
+            border-top: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            color: white;
+            z-index: 9999;
+        }
+
+      
+        @media (max-width: 768px) {
+          .player {
+            left: 0;
+            width: 100%;
+          }
+        }
+      
+        .player-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+      
+        .player-img {
+          width: 65px;
+          height: 65px;
+          border-radius: 8px;
+          object-fit: cover;
+        }
+      
+        .info h4 {
+          margin: 0;
+          font-size: 17px;
+        }
+      
+        .info p {
+          margin: 0;
+          font-size: 13px;
+          opacity: .7;
+        }
+      
+        .player-center button {
+          font-size: 25px;
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+          margin: 0 8px;
+          transition: .2s;
+        }
+      
+        .player-center button:hover { opacity:.6; }
+      
+        /* garante que main/content ocupem a largura disponível */
+        .main {
+          min-height: 100vh; /* evita que .main encolha pra nada */
+          box-sizing: border-box;
+        }
+      
+        .content {
+          padding: 25px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+    
+    </style>
+      
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div>
+            <h1>Touch Here</h1>
+
+            <nav class="menu">
+                <a href="{{ url_for('index') }}">🏠 Início</a>
+
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('playlist') }}">🎵 Minhas Playlists</a>
+                    <a href="{{ url_for('liked') }}">⭐ Favoritos</a>
+
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin') }}">⚙️ Admin</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('login') }}">🎧 Faça login</a>
+                {% endif %}
+            </nav>
+        </div>
+
+        <footer>© 2025 Touchhere</footer>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <header>
+            <div class="search">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+                </svg>
+                <input type="text" placeholder="Buscar artistas, músicas...">
+            </div>
+
+            <div class="user">
+                {% if current_user.is_authenticated %}
+                    <div class="user-info" onclick="window.location.href='{{ url_for('profile') }}'">
+                        <img src="{{ current_user.foto_perfil or 'https://i.pravatar.cc/150' }}"
+                             alt="Foto de perfil"
+                             class="profile-photo">
+                        <span>{{ current_user.nome }}</span>
+                    </div>
+                    <button class="login-btn" onclick="window.location.href='{{ url_for('logout') }}'">Sair</button>
+                {% else %}
+                    <button class="login-btn" onclick="window.location.href='{{ url_for('login') }}'">Entrar</button>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- LISTA DE MÚSICAS -->
+        <section class="content" id="musicas">
+            <h2>🎵 Músicas</h2>
+
+            <div class="grid">
+                {% for m in musicas %}
+                    <div class="card">
+                        <h3>{{ m.titulo }}</h3>
+                        <p>
+                            <strong>Artista:</strong> {{ m.artista.nome if m.artista else 'Desconhecido' }}<br>
+                            <strong>Gênero:</strong> {{ m.genero.tipo if m.genero else '—' }}<br>
+                            {% if m.album %}<strong>Álbum:</strong> {{ m.album.titulo }}{% endif %}
+                        </p>
+
+                        <button onclick="playMusic('{{ m.titulo }}', '{{ m.artista.nome if m.artista else 'Desconhecido' }}', '{{ m.caminho_pasta }}')">
+                            ▶️ Tocar
+                        </button>
+
+                        {% if current_user.is_authenticated %}
+                        <form action="{{ url_for('favoritar', musica_id=m.id) }}" method="post" style="margin-top:5px;">
+                            <button type="submit">⭐ Favoritar</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>Nenhuma música cadastrada.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+
+    <!-- PLAYER FIXO -->
+    <footer class="player">
+        <div class="player-left">
+            <img id="player-cover" src="https://i.imgur.com/8QfY7gM.png" class="player-img">
+            <div class="info">
+                <h4 id="player-title">Nenhuma música tocando</h4>
+                <p id="player-artist"></p>
+            </div>
+        </div>
+
+        <div class="player-center">
+            <button onclick="prevTrack()">⏮</button>
+            <button onclick="togglePlay()">⏯</button>
+            <button onclick="nextTrack()">⏭</button>
+            <audio id="audio-player" style="display:none;"></audio>
+        </div>
+    </footer>
+
+    <!-- SCRIPT DO PLAYER -->
+    <script>
+        let playlist = [];
+        let currentIndex = 0;
+
+        function playMusic(title, artist, path) {
+            const audio = document.getElementById("audio-player");
+
+            path = path.replace("Touch-Here-Website/", ""); // Ajusta caminho
+            audio.src = "/" + path;
+            audio.play();
+
+            document.getElementById("player-title").innerText = title;
+            document.getElementById("player-artist").innerText = artist;
+            document.getElementById("player-cover").src = "";
+
+            const track = { title, artist, path };
+            if (!playlist.find(t => t.path === path)) playlist.push(track);
+
+            currentIndex = playlist.findIndex(t => t.path === path);
+        }
+
+        function togglePlay() {
+            const audio = document.getElementById("audio-player");
+            audio.paused ? audio.play() : audio.pause();
+        }
+
+        function nextTrack() {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex + 1) % playlist.length;
+            const m = playlist[currentIndex];
+            playMusic(m.title, m.artist, m.path);
+        }
+
+        function prevTrack() {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            const m = playlist[currentIndex];
+            playMusic(m.title, m.artist, m.path);
+        }
+    </script>
+
+</body>
+</html>

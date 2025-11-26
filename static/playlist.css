@@ -1,0 +1,245 @@
+ :root {
+    --bg-dark: #121212;
+    --bg-light: #181818;
+    --accent: #F04192;
+    --text: #fff;
+    --muted: #b3b3b3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+  }
+
+ 
+  .sidebar {
+    width: 220px;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 0;
+  }
+  .sidebar h1 {
+    font-size: 20px;
+    margin: 0 20px 30px;
+    color: var(--accent);
+  }
+  .menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 0 20px;
+  }
+  .menu a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 14px;
+    transition: color .2s;
+  }
+  .menu a:hover {
+    color: var(--accent);
+  }
+  .sidebar footer {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 10px;
+  }
+
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-light);
+    overflow-y: auto;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #181818;
+    border-bottom: 1px solid #282828;
+  }
+  .search {
+    display: flex;
+    align-items: center;
+    background: #282828;
+    border-radius: 30px;
+    padding: 5px 15px;
+    width: 300px;
+  }
+  .search input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    width: 100%;
+    font-size: 14px;
+  }
+  .search svg {
+    width: 16px;
+    margin-right: 8px;
+    fill: var(--muted);
+  }
+
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+  }
+
+
+  .content {
+    padding: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: #242424;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: background .3s, transform .2s;
+  }
+  .card:hover {
+    background: #2a2a2a;
+    transform: scale(1.04);
+  }
+  .card img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .card h3 {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .card p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .player {
+    background: #181818;
+    border-top: 1px solid #282828;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .controls button {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 18px;
+    transition: color .2s;
+  }
+  .controls button:hover {
+    color: var(--accent);
+  }
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+  .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+  }
+
+  .profile-photo {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #c721ba;
+  }
+
+  .login-btn {
+      padding: 8px 14px;
+      background: #c721ba;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+  }
+
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { flex: 1; }
+  } 
+
+/* FLASH MESSAGES */
+.flash-container {
+    padding: 15px;
+    width: 100%;
+}
+
+.flash {
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    border-left: 4px solid;
+}
+
+.flash-success {
+    background-color: #2e7d32; /* verde escuro */
+    border-color: #4caf50; /* verde accent */
+}
+
+.flash-danger {
+    background-color: #b71c1c; /* vermelho escuro */
+    border-color: #f44336; /* vermelho accent */
+}
+
+.flash-warning {
+    background-color: #ffb300; /* amarelo escuro */
+    color: #000;
+    border-color: #ff9800; /* amarelo accent */
+}
+
+.flash-info {
+    background-color: #1565c0; /* azul escuro */
+    border-color: #2196f3; /* azul accent */
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  z-index: 2000;
+  width: 360px;
+  display: none;
+}
+

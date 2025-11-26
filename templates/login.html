@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+
+  <title>Entrar — Touch Here</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Touch Here 🎧</h1>
+    <p class="subtitle">Entre e curta suas músicas preferidas</p>
+
+    <!-- FORM DO FLASK -->
+    <form method="POST" action="{{ url_for('login') }}">
+      
+      <label for="emailLogin">E-mail</label>
+      <input
+        type="email"
+        id="emailLogin"
+        name="email"
+        placeholder="seu@exemplo.com"
+        required
+      >
+
+      <label for="senhaLogin">Senha</label>
+      <input
+        type="password"
+        id="senhaLogin"
+        name="senha"
+        placeholder="••••••••"
+        required
+      >
+
+      <div class="options">
+        <a href="#">Esqueci minha senha</a>
+      </div>
+
+      <button class="btn btn-primary" type="submit">Entrar</button>
+
+      <div class="divider">ou</div>
+
+      <!-- Esse botão é só visual, não faz login real -->
+      <button class="btn btn-google" type="button">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+        Entrar com o Google
+      </button>
+
+      <div class="switch-mode">
+        Não tem uma conta? <a href="{{ url_for('register') }}">Crie agora</a>
+      </div>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+  </div>
+</body>
+</html>
