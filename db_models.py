@@ -12,7 +12,6 @@ class Usuarios(UserMixin, db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     tipo_usuario = db.Column(db.String(20), nullable=False, default='usuario')
-    payment_plan = db.Column(db.String(50), nullable=False, default='free')
     foto_perfil = db.Column(db.Text, nullable=True)
 
     # Relacionamentos
