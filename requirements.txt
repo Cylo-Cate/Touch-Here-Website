@@ -1,0 +1,8 @@
+pyodbc
+flask
+flask_bcrypt
+flask_login
+flask_sqlalchemy
+dotenv
+yt_dlp
+werkzeug.security
